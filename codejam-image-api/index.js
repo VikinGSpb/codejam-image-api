@@ -10,6 +10,37 @@ const label = document.querySelector('#label');
 let handle = true;
 let firstPoint = [0, 0];
 let secondPoint = [0, 0];
+const imageButton = document.querySelector('#imageButton');
+
+imageButton.addEventListener('click', getLinkToImage);
+
+async function getLinkToImage() {
+  const url = 'https://api.unsplash.com/photos/random?query=town,Minsk&client_id=a2840b831d7df553cc4c7c1492e8602cbd21b24a89cb2050aaf67407e892be30';
+  try{
+    const response = await fetch(url);
+    const data = await response.json();
+    let image = document.createElement('img');
+    image.crossOrigin = "Anonymous";
+    image.setAttribute('src', data.urls.small);
+    image.onload = () => {
+      console.log(image.width, image.height);
+      if (canvas && canvas.getContext) {
+        if(image.width === image.height) {
+          ctx.drawImage(image, 0, 0, 512, 512);
+        } else if(image.width < image.height) {
+          ctx.drawImage(image, (512 - image.width * 512 / image.height) / 2, 0, image.width * 512 / image.height, 512);
+        } else if(image.width > image.height) {
+          ctx.drawImage(image, 0, (512 - image.height * 512 / image.width) / 2, 512, image.height * 512 / image.width);
+        } else ctx2.drawImage(image, 0, 0, 512, 512);
+      } else throw new Error('Canvas Error');
+    }
+    image.onerror = () => { 
+      throw new Error('Data Error');
+    }
+  } catch(e) {
+    console.error(e);
+  }
+} 
 
 function findColor(...args) {
   let x;
@@ -83,6 +114,7 @@ function prefillCanvas() {
 }
 
 window.onload = () => {
+  //getLinkToImage();
   if (localStorage.getItem('currentColor')) currentColor = localStorage.getItem('currentColor');
   if (localStorage.getItem('previousColor')) previousColor = localStorage.getItem('previousColor');
   if (localStorage.getItem('canvasState1')) {
