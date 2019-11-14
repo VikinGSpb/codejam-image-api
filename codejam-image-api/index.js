@@ -1,5 +1,6 @@
 const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
+const ctx2 = canvas.getContext('2d');
 const buttons = document.querySelectorAll('.options--list-item:not(.inactive):not(.colors)');
 let currentColor = '#00ff00';
 let previousColor = '#000000';
@@ -11,11 +12,18 @@ let handle = true;
 let firstPoint = [0, 0];
 let secondPoint = [0, 0];
 const imageButton = document.querySelector('#imageButton');
+const inputCity = document.querySelector('#inputCity');
 
 imageButton.addEventListener('click', getLinkToImage);
 
 async function getLinkToImage() {
-  const url = 'https://api.unsplash.com/photos/random?query=town,Minsk&client_id=a2840b831d7df553cc4c7c1492e8602cbd21b24a89cb2050aaf67407e892be30';
+  let url;
+  if(inputCity.value) {
+    url = 'https://api.unsplash.com/photos/random?query=town,' + `${inputCity.value}` + '&client_id=a2840b831d7df553cc4c7c1492e8602cbd21b24a89cb2050aaf67407e892be30';
+    console.log(url);
+  } else {
+    url = 'https://api.unsplash.com/photos/random?query=town,Minsk&client_id=a2840b831d7df553cc4c7c1492e8602cbd21b24a89cb2050aaf67407e892be30';
+  }
   try{
     const response = await fetch(url);
     const data = await response.json();
@@ -26,11 +34,11 @@ async function getLinkToImage() {
       console.log(image.width, image.height);
       if (canvas && canvas.getContext) {
         if(image.width === image.height) {
-          ctx.drawImage(image, 0, 0, 512, 512);
+          ctx2.drawImage(image, 0, 0, 512, 512);
         } else if(image.width < image.height) {
-          ctx.drawImage(image, (512 - image.width * 512 / image.height) / 2, 0, image.width * 512 / image.height, 512);
+          ctx2.drawImage(image, (512 - image.width * 512 / image.height) / 2, 0, image.width * 512 / image.height, 512);
         } else if(image.width > image.height) {
-          ctx.drawImage(image, 0, (512 - image.height * 512 / image.width) / 2, 512, image.height * 512 / image.width);
+          ctx2.drawImage(image, 0, (512 - image.height * 512 / image.width) / 2, 512, image.height * 512 / image.width);
         } else ctx2.drawImage(image, 0, 0, 512, 512);
       } else throw new Error('Canvas Error');
     }
@@ -114,7 +122,7 @@ function prefillCanvas() {
 }
 
 window.onload = () => {
-  //getLinkToImage();
+  console.log(inputCity.nodeValue);
   if (localStorage.getItem('currentColor')) currentColor = localStorage.getItem('currentColor');
   if (localStorage.getItem('previousColor')) previousColor = localStorage.getItem('previousColor');
   if (localStorage.getItem('canvasState1')) {
