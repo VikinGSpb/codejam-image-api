@@ -15,39 +15,42 @@ let secondPoint = [0, 0];
 const imageButton = document.querySelector('#imageButton');
 const inputCity = document.querySelector('#inputCity');
 
-imageButton.addEventListener('click', getLinkToImage);
-
 async function getLinkToImage() {
   let url;
-  if(inputCity.value) {
-    url = 'https://api.unsplash.com/photos/random?query=town,' + `${inputCity.value}` + '&client_id=a2840b831d7df553cc4c7c1492e8602cbd21b24a89cb2050aaf67407e892be30';
+  const str = '';
+  if (inputCity.value) {
+    url = str.concat('https://api.unsplash.com/photos/random?query=town,', `${inputCity.value}`, '&client_id=a2840b831d7df553cc4c7c1492e8602cbd21b24a89cb2050aaf67407e892be30');
   } else {
     url = 'https://api.unsplash.com/photos/random?query=town,Minsk&client_id=a2840b831d7df553cc4c7c1492e8602cbd21b24a89cb2050aaf67407e892be30';
   }
-  try{
+  try {
     const response = await fetch(url);
     const data = await response.json();
-    let image = document.createElement('img');
-    image.crossOrigin = "Anonymous";
+    const image = document.createElement('img');
+    image.crossOrigin = 'Anonymous';
     image.setAttribute('src', data.urls.small);
     image.onload = () => {
       if (canvas && canvas.getContext) {
-        if(image.width === image.height) {
+        if (image.width === image.height) {
           ctx.drawImage(image, 0, 0, 512, 512);
-        } else if(image.width < image.height) {
-          ctx.drawImage(image, (512 - image.width * 512 / image.height) / 2, 0, image.width * 512 / image.height, 512);
-        } else if(image.width > image.height) {
-          ctx.drawImage(image, 0, (512 - image.height * 512 / image.width) / 2, 512, image.height * 512 / image.width);
+        } else if (image.width < image.height) {
+          ctx.drawImage(image, (512 - (image.width * 512) / image.height) / 2,
+            0, (image.width * 512) / image.height, 512);
+        } else if (image.width > image.height) {
+          ctx.drawImage(image, 0, (512 - (image.height * 512) / image.width) / 2,
+            512, (image.height * 512) / image.width);
         }
       } else throw new Error('Canvas Error');
-    }
-    image.onerror = () => { 
+    };
+    image.onerror = () => {
       throw new Error('Data Error');
-    }
-  } catch(e) {
+    };
+  } catch (e) {
     console.error(e);
   }
-} 
+}
+
+imageButton.addEventListener('click', getLinkToImage);
 
 function findColor(...args) {
   let x;
