@@ -17,8 +17,38 @@ const inputCity = document.querySelector('#inputCity');
 const grayScale = document.querySelector('#grayScale');
 let imageFlag;
 
+function findColor(...args) {
+  let x;
+  let y;
+  if (args[2]) {
+    x = args[2].clientX - canvas.offsetLeft;
+    y = args[2].clientY - canvas.offsetTop;
+  } else {
+    [x, y] = args;
+  }
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const pixels = imageData.data;
+  const pixelRedIndex = ((y - 1) * (imageData.width * 4)) + ((x - 1) * 4);
+  const pixelColor = `rgba(${pixels[pixelRedIndex]}, ${pixels[pixelRedIndex + 1]}, ${pixels[pixelRedIndex + 2]}, ${pixels[pixelRedIndex + 3] / 255})`;
+  return pixelColor;
+}
+
+function saveState() {
+  let count = 0;
+  for (let yCoordinate = 2; yCoordinate < 512; yCoordinate += 128) {
+    for (let xCoordinate = 2; xCoordinate < 512; xCoordinate += 128) {
+      localStorage.setItem(`canvasState${count}`, (findColor(xCoordinate, yCoordinate)));
+      count += 1;
+    }
+  }
+  localStorage.setItem('previousColor', previousColor);
+  localStorage.setItem('currentColor', currentColor);
+  const currentImage = canvas.toDataURL();
+  localStorage.setItem('canvasImage', currentImage);
+}
+
 grayScale.addEventListener('click', () => {
-  if(!imageFlag) {
+  if (!imageFlag) {
     alert('Load image before grayscale');
     return;
   }
@@ -31,6 +61,7 @@ grayScale.addEventListener('click', () => {
     data[i + 2] = avg;
   }
   ctx.putImageData(imageData, 0, 0);
+  saveState();
 });
 
 async function getLinkToImage() {
@@ -59,6 +90,7 @@ async function getLinkToImage() {
           ctx.drawImage(image, 0, (512 - (image.height * 512) / image.width) / 2,
             512, (image.height * 512) / image.width);
         }
+        saveState();
       } else throw new Error('Canvas Error');
     };
     image.onerror = () => {
@@ -70,34 +102,6 @@ async function getLinkToImage() {
 }
 
 imageButton.addEventListener('click', getLinkToImage);
-
-function findColor(...args) {
-  let x;
-  let y;
-  if (args[2]) {
-    x = args[2].clientX - canvas.offsetLeft;
-    y = args[2].clientY - canvas.offsetTop;
-  } else {
-    [x, y] = args;
-  }
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const pixels = imageData.data;
-  const pixelRedIndex = ((y - 1) * (imageData.width * 4)) + ((x - 1) * 4);
-  const pixelColor = `rgba(${pixels[pixelRedIndex]}, ${pixels[pixelRedIndex + 1]}, ${pixels[pixelRedIndex + 2]}, ${pixels[pixelRedIndex + 3] / 255})`;
-  return pixelColor;
-}
-
-function saveState() {
-  let count = 0;
-  for (let yCoordinate = 2; yCoordinate < 512; yCoordinate += 128) {
-    for (let xCoordinate = 2; xCoordinate < 512; xCoordinate += 128) {
-      localStorage.setItem(`canvasState${count}`, (findColor(xCoordinate, yCoordinate)));
-      count += 1;
-    }
-  }
-  localStorage.setItem('previousColor', previousColor);
-  localStorage.setItem('currentColor', currentColor);
-}
 
 function changeColor(color) {
   const inter = currentColor;
@@ -170,6 +174,15 @@ window.onload = () => {
     changeColor(e.target.value);
   });
   inputColor.select();
+  if (localStorage.getItem('canvasImage')) {
+    imageFlag = true;
+    const canvasImg = new Image();
+    const dataUrl = localStorage.getItem('canvasImage');
+    canvasImg.src = dataUrl;
+    canvasImg.onload = () => {
+      ctx.drawImage(canvasImg, 0, 0);
+    };
+  }
 };
 
 function draw(x, y) {
