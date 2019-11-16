@@ -171,6 +171,19 @@
     cursor: pointer;
     background: rgba(0, 0, 0, 0.12);
   }
+
+  &--grayScale {
+    flex: 0 0 20px;
+    height: 30px;
+
+    border: 1px solid #000000;
+    border-radius: 50px;
+  }
+
+  &--grayScale:hover {
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.12);
+  }
 }
 
 .active {

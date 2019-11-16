@@ -14,8 +14,27 @@ let firstPoint = [0, 0];
 let secondPoint = [0, 0];
 const imageButton = document.querySelector('#imageButton');
 const inputCity = document.querySelector('#inputCity');
+const grayScale = document.querySelector('#grayScale');
+let imageFlag;
+
+grayScale.addEventListener('click', () => {
+  if(!imageFlag) {
+    alert('Load image before grayscale');
+    return;
+  }
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const { data } = imageData;
+  for (let i = 0; i < data.length; i += 4) {
+    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+    data[i] = avg;
+    data[i + 1] = avg;
+    data[i + 2] = avg;
+  }
+  ctx.putImageData(imageData, 0, 0);
+});
 
 async function getLinkToImage() {
+  imageFlag = true;
   let url;
   const str = '';
   if (inputCity.value) {

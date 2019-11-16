@@ -113,6 +113,14 @@
   .content--button:hover {
     cursor: pointer;
     background: rgba(0, 0, 0, 0.12); }
+  .content--grayScale {
+    flex: 0 0 20px;
+    height: 30px;
+    border: 1px solid #000000;
+    border-radius: 50px; }
+  .content--grayScale:hover {
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.12); }
 
 .active {
   border: 1px solid rgba(0, 0, 0, 0.12);
