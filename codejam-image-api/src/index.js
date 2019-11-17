@@ -16,6 +16,7 @@ const imageButton = document.querySelector('#imageButton');
 const inputCity = document.querySelector('#inputCity');
 const grayScale = document.querySelector('#grayScale');
 let imageFlag;
+const canvasSize = 512;
 
 function findColor(...args) {
   let x;
@@ -79,17 +80,24 @@ async function getLinkToImage() {
     const image = document.createElement('img');
     image.crossOrigin = 'Anonymous';
     image.setAttribute('src', data.urls.small);
+    const canvas2 = document.createElement('canvas');
+    const ctx2 = canvas2.getContext('2d');
     image.onload = () => {
+      ctx2.drawImage(image, 0, 0, image.width / 4, image.height / 4);
       if (canvas && canvas.getContext) {
-        if (image.width === image.height) {
-          ctx.drawImage(image, 0, 0, 512, 512);
+        let drawWidth = canvasSize;
+        let drawHeight = canvasSize;
+        let coordX = 0;
+        let coordY = 0;
+        if (image.width > image.height) {
+          drawHeight = image.height * (canvasSize / image.width);
+          coordY = canvasSize / 2 - drawHeight / 2;
         } else if (image.width < image.height) {
-          ctx.drawImage(image, (512 - (image.width * 512) / image.height) / 2,
-            0, (image.width * 512) / image.height, 512);
-        } else if (image.width > image.height) {
-          ctx.drawImage(image, 0, (512 - (image.height * 512) / image.width) / 2,
-            512, (image.height * 512) / image.width);
+          drawWidth = image.width * (canvasSize / image.height);
+          coordX = canvasSize / 2 - drawWidth / 2;
         }
+        ctx.drawImage(canvas2, 0, 0, image.width / 4, image.height / 4,
+          coordX, coordY, drawWidth, drawHeight);
         saveState();
       } else throw new Error('Canvas Error');
     };
