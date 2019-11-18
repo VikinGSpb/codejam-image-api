@@ -17,6 +17,7 @@ const inputCity = document.querySelector('#inputCity');
 const grayScale = document.querySelector('#grayScale');
 let imageFlag;
 const canvasSize = 512;
+const resButtons = document.querySelector('.content--resButtons');
 
 function findColor(...args) {
   let x;
@@ -65,6 +66,28 @@ grayScale.addEventListener('click', () => {
   saveState();
 });
 
+function asyncDraw(img, grain) {
+  const canvas2 = document.createElement('canvas');
+  const ctx2 = canvas2.getContext('2d');
+  ctx2.drawImage(img, 0, 0, img.width / grain, img.height / grain);
+  if (canvas && canvas.getContext) {
+    let drawWidth = canvasSize;
+    let drawHeight = canvasSize;
+    let coordX = 0;
+    let coordY = 0;
+    if (img.width > img.height) {
+      drawHeight = img.height * (canvasSize / img.width);
+      coordY = canvasSize / 2 - drawHeight / 2;
+    } else if (img.width < img.height) {
+      drawWidth = img.width * (canvasSize / img.height);
+      coordX = canvasSize / 2 - drawWidth / 2;
+    }
+    ctx.drawImage(canvas2, 0, 0, img.width / 4, img.height / 4,
+      coordX, coordY, drawWidth, drawHeight);
+    saveState();
+  } else throw new Error('Canvas Error');
+}
+
 async function getLinkToImage() {
   imageFlag = true;
   let url;
@@ -80,26 +103,8 @@ async function getLinkToImage() {
     const image = document.createElement('img');
     image.crossOrigin = 'Anonymous';
     image.setAttribute('src', data.urls.small);
-    const canvas2 = document.createElement('canvas');
-    const ctx2 = canvas2.getContext('2d');
     image.onload = () => {
-      ctx2.drawImage(image, 0, 0, image.width / 4, image.height / 4);
-      if (canvas && canvas.getContext) {
-        let drawWidth = canvasSize;
-        let drawHeight = canvasSize;
-        let coordX = 0;
-        let coordY = 0;
-        if (image.width > image.height) {
-          drawHeight = image.height * (canvasSize / image.width);
-          coordY = canvasSize / 2 - drawHeight / 2;
-        } else if (image.width < image.height) {
-          drawWidth = image.width * (canvasSize / image.height);
-          coordX = canvasSize / 2 - drawWidth / 2;
-        }
-        ctx.drawImage(canvas2, 0, 0, image.width / 4, image.height / 4,
-          coordX, coordY, drawWidth, drawHeight);
-        saveState();
-      } else throw new Error('Canvas Error');
+      asyncDraw(image, 4);
     };
     image.onerror = () => {
       throw new Error('Data Error');
@@ -110,6 +115,23 @@ async function getLinkToImage() {
 }
 
 imageButton.addEventListener('click', getLinkToImage);
+
+resButtons.addEventListener('click', (e) => {
+  const { target } = e;
+  if (target.tagName !== 'DIV') return;
+  const resButtonsChildren = resButtons.getElementsByTagName('DIV');
+  for (let i = 0; i < resButtonsChildren.length; i += 1) {
+    if (resButtonsChildren[i].classList.contains('activeResButton')) resButtonsChildren[i].classList.remove('activeResButton');
+  }
+  target.classList.add('activeResButton');
+  const canvasGrain = canvasSize / target.getAttribute('id');
+  const canvasImg = new Image();
+  const dataUrl = localStorage.getItem('canvasImage');
+  canvasImg.src = dataUrl;
+  canvasImg.onload = () => {
+    asyncDraw(canvasImg, canvasGrain);
+  };
+});
 
 function changeColor(color) {
   const inter = currentColor;

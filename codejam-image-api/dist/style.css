@@ -121,6 +121,17 @@
   .content--grayScale:hover {
     cursor: pointer;
     background: rgba(0, 0, 0, 0.12); }
+  .content--resButtons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px; }
+  .content--resButton {
+    flex: 0 0 20%;
+    text-align: center;
+    border: 1px solid black; }
+  .content--resButton:hover {
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.12); }
 
 .active {
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -133,4 +144,8 @@
 .inactive:hover {
   background: none;
   cursor: default; }
+
+.activeResButton {
+  background: rgba(255, 255, 0, 0.12);
+  color: blue; }
 
